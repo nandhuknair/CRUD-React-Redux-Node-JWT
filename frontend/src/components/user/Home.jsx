@@ -2,10 +2,13 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "sonner";
 import Navbar from "./Navbar";
+import { useSelector, useDispatch } from "react-redux";
+import { login } from "../../Redux/userSlice";
 
 const Home = () => {
+  const [userName, setUserName] = useState("");
 
-  const [userName , setUserName] = useState("")
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -16,20 +19,22 @@ const Home = () => {
 
       try {
         const authUser = await axios.get("http://localhost:3000/user/home");
-        console.log(authUser.data); 
-        setUserName(authUser.data.user.name)
+        console.log(authUser.data);
+        setUserName(authUser.data.user.name);
+        dispatch(login(authUser.data.user));
+        
       } catch (error) {
         console.error("Error fetching data:", error);
-        toast.error("Failed to fetch user data"); 
+        toast.error("Failed to fetch user data");
       }
     };
 
     fetchData();
-  }, []); 
+  }, []);
 
   return (
     <div>
-      <Navbar userName={userName}/>
+      <Navbar userName={userName} />
       <h1 className="text-3xl font-bold">This is a home page bruh!</h1>
     </div>
   );

@@ -5,7 +5,8 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 require("dotenv").config();
 const userRouter = require("./routes/userRouter");
-    
+const adminRouter = require('./routes/adminRouter')
+       
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("Database Connected!"))
@@ -24,5 +25,7 @@ app.use(cookieParser());
 app.use(express.static("public"));
      
 app.use("/user", userRouter);
+app.use("/admin", adminRouter);
+
 
 app.listen(3000);
