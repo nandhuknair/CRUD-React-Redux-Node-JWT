@@ -32,20 +32,21 @@ const Signup = () => {
 
     // Validation
     const errors = {};
-    if (!formData.userName) errors.userName = "Username is required";
+    if (!formData.userName) errors.userName = "Username is required*";
     if (!formData.email) {
-      errors.email = "Email is required";
+      errors.email = "Email is required*";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      errors.email = "Email address is invalid";
+      errors.email = "Email address is invalid*";
     }
     if (!formData.mobile) {
-      errors.mobile = "Mobile number is required";
-    } else if (!/^\d{10}$/.test(formData.mobile)) {
-      errors.mobile = "Mobile number is invalid";
+      errors.mobile = "Mobile number is required*";
+    } 
+    if (!/^\d{10}$/.test(formData.mobile)) {
+      errors.mobile = "Mobile number is invalid*";
     }
-    if (!formData.password) errors.password = "Password is required";
+    if (!formData.password) errors.password = "Password is required*";
     if (!formData.profileImage)
-      errors.profileImage = "Profile image is required";
+      errors.profileImage = "Profile image is required*";
 
     setErrors(errors);
     if (Object.keys(errors).length > 0) return; // Stop submission if there are errors
@@ -60,7 +61,7 @@ const Signup = () => {
       setLoading(true); // Set loading to true before making the request
 
       const response = await axios.post(
-        "http://localhost:3000/signup",
+        "http://localhost:3000/user/signup",
         registerForm,
         {
           headers: {
@@ -86,7 +87,7 @@ const Signup = () => {
         console.log(response.data.message);
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || error.messageb);
+      toast.error(error.response?.data?.message || error.message);
       console.error(error);
     } finally {
       setLoading(false); // Set loading to false after request completes
@@ -122,7 +123,7 @@ const Signup = () => {
               onChange={handleChange}
             />
             {errors.userName && (
-              <p className="text-red-500">{errors.userName}</p>
+              <p className="text-red-400">{errors.userName}</p>
             )}
 
             <label htmlFor="email" className="tracking-wide">
@@ -136,7 +137,7 @@ const Signup = () => {
               onChange={handleChange}
               value={formData.email}
             />
-            {errors.email && <p className="text-red-500">{errors.email}</p>}
+            {errors.email && <p className="text-red-400">{errors.email}</p>}
 
             <label htmlFor="mobile" className="tracking-wide ">
               Mobile*
@@ -149,7 +150,7 @@ const Signup = () => {
               onChange={handleChange}
               value={formData.mobile}
             />
-            {errors.mobile && <p className="text-red-500">{errors.mobile}</p>}
+            {errors.mobile && <p className="text-red-400">{errors.mobile}</p>}
 
             <label htmlFor="password" className="tracking-wide">
               Password*
@@ -163,7 +164,7 @@ const Signup = () => {
               value={formData.password}
             />
             {errors.password && (
-              <p className="text-red-500">{errors.password}</p>
+              <p className="text-red-400">{errors.password}</p>
             )}
 
             <p className="tracking-wide mt-4">Profile Image*</p>
@@ -192,7 +193,7 @@ const Signup = () => {
               )}
             </div>
             {errors.profileImage && (
-              <p className="text-red-500">{errors.profileImage}</p>
+              <p className="text-red-400">{errors.profileImage}</p>
             )}
 
             <div className="flex justify-center mt-4">

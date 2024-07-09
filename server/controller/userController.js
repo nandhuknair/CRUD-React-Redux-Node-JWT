@@ -3,23 +3,13 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const User = require("../model/userModel");
 
-exports.login = async (req, res) => {
-  try {
-    console.log("Hello it's success babyyyy!");
-    res.json("SUccess");
-  } catch (error) {
-    res.json({ message: error });
-    console.log(error);
-  }
-};
-
 exports.signUp = async (req, res) => {
   try {
     const { userName, email, mobile, password } = req.body;
     const profileImage = req.file;
     if (!profileImage)
       return res.status(400).json({ message: "Profile is not uploaded" });
-     
+
     const profileImagePath = profileImage.path;
     const existingUser = await User.findOne({ email });
     if (existingUser)
@@ -27,7 +17,7 @@ exports.signUp = async (req, res) => {
         .status(400)
         .json({ message: "User already exist please Login" });
 
-    const salt = await bcrypt.genSalt();     
+    const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const newUser = new User({
@@ -35,7 +25,7 @@ exports.signUp = async (req, res) => {
       email: email,
       mobile: mobile,
       password: hashedPassword,
-      imagePath:profileImagePath,
+      imagePath: profileImagePath,
     });
 
     await newUser.save();
@@ -46,5 +36,79 @@ exports.signUp = async (req, res) => {
     res
       .status(500)
       .json({ message: "Registration failed!", error: err.message });
+  }
+};
+
+exports.login = async (req, res) => {
+  console.log("Here its reached near the login page !");
+  try {
+    const { email, password } = req.body;
+
+    const userExist = await User.findOne({ email });
+    if (!userExist) {
+      return res
+        .status(400)
+        .json({ message: "You are not yet registered please Signup" });
+    }
+
+    const passwordCheck = await bcrypt.compare(password, userExist.password);
+    if (!passwordCheck) {
+      return res.status(400).json({ message: "Incorrect password" });
+    }
+
+    const userDetails = {
+      name: userExist.userName,
+      email: userExist.email,
+      mobile: userExist.mobile,
+      image: userExist.imagePath,
+      createdAt: userExist.createdAt,
+    };
+
+    const token = jwt.sign(userDetails, process.env.JWT_SECRET);
+
+    res.status(200).json({
+      message: "Successfully loged in",
+      token: token,
+      user: userExist,
+    });
+  } catch (error) {
+    console.log("error in the signin LOGIN pos ", error);
+    res
+      .status(500)
+      .json({ message: "Login failed server failed", error: error });
+  }
+};
+
+exports.home = async (req, res) => {
+  try {
+    console.log("reached the home page ")
+    const authHeader = req.headers.authorization;
+    console.log(authHeader, "this is auth header");
+    const token = authHeader && authHeader.split(" ")[1];
+    console.log("this is the token ", token);
+    if (!token)
+      return res.status(400).json({ message: "No token exist please login" });
+    jwt.verify(token, process.env.JWT_SECRET, async (err, data) => {
+      if (err) {
+        console.log("error in token varification", err);
+        res
+          .status(500)
+          .json({ message: "error in token verification", error: err });
+      } else {
+        console.log("this is data inside the jwt", data);
+        const userData = await User.findOne({ email: data.email });
+        res    
+          .status(200)         
+          .json({ message: "Successfully verified the token", user: userData });
+      }
+    });    
+  } catch (error) {
+    console.log(error);
+    res
+      .status(500)
+      .json({
+        message: "Server error during verification of token",
+        error: error,
+      });
   }
 };
