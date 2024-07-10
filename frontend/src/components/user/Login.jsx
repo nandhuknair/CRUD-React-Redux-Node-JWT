@@ -36,10 +36,9 @@ const Login = () => {
         localStorage.setItem("token", response.data.token);
         localStorage.setItem("userId", response.data.user._id);
 
-
         dispatch(login(response.data.user));
 
-        navigate("/");
+        window.location.href ='/';
 
         toast.success(`Hello ${response.data.user.name} successfully loggedin`);
       } else {

@@ -10,7 +10,7 @@ exports.signUp = async (req, res) => {
     if (!profileImage)
       return res.status(400).json({ message: "Profile is not uploaded" });
 
-    const profileImagePath = profileImage.path;
+    const profileImagePath = `/uploads/${profileImage.filename}`;
     const existingUser = await User.findOne({ email });
     if (existingUser)
       return res
@@ -60,6 +60,7 @@ exports.login = async (req, res) => {
       name: userExist.userName,
       email: userExist.email,
       mobile: userExist.mobile,
+      isAdmin: userExist.isAdmin,
       image: userExist.imagePath,
       createdAt: userExist.createdAt,
     };
@@ -67,7 +68,7 @@ exports.login = async (req, res) => {
     const token = jwt.sign(userDetails, process.env.JWT_SECRET);
 
     res.status(200).json({
-      message: "Successfully loged in",
+      message: "Successfully logged In",
       token: token,
       user: userExist,
     });
@@ -81,11 +82,8 @@ exports.login = async (req, res) => {
 
 exports.home = async (req, res) => {
   try {
-    console.log("reached the home page ")
     const authHeader = req.headers.authorization;
-    console.log(authHeader, "this is auth header");
     const token = authHeader && authHeader.split(" ")[1];
-    console.log("this is the token ", token);
     if (!token)
       return res.status(400).json({ message: "No token exist please login" });
     jwt.verify(token, process.env.JWT_SECRET, async (err, data) => {
@@ -95,20 +93,23 @@ exports.home = async (req, res) => {
           .status(500)
           .json({ message: "error in token verification", error: err });
       } else {
-        console.log("this is data inside the jwt", data);
+        if (data.isAdmin)
+          return res.status(400).json({
+            message: "It's an admin token not user's please try another email",
+          });
         const userData = await User.findOne({ email: data.email });
-        res    
-          .status(200)         
+        res
+          .status(200)
           .json({ message: "Successfully verified the token", user: userData });
       }
-    });    
+    });
   } catch (error) {
     console.log(error);
-    res
-      .status(500)
-      .json({
-        message: "Server error during verification of token",
-        error: error,
-      });
+    res.status(500).json({
+      message: "Server error during verification of token",
+      error: error,
+    });
   }
 };
+
+

@@ -2,10 +2,10 @@ import React, { useEffect } from 'react'
 
 const Error = () => {
 
-    useEffect(()=> {
-        localStorage.removeItem("token")
-        localStorage.removeItem("userId")
-    },[])
+    // useEffect(()=> {
+    //     localStorage.removeItem("token")
+    //     localStorage.removeItem("userId")
+    // },[])
 
   return (
     <div>
