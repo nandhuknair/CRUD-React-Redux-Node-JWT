@@ -1,14 +1,11 @@
-import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { logout, login } from "../../Redux/userSlice";
-import axios from "axios";
-import { toast } from "sonner";
+import { logout } from "../../Redux/userSlice";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
-
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const user = useSelector((state) => state.user.user.name);
-  console.log(user, "From header page !!!!!!!! suiiiiiiiiiiii");
-
 
   const handleLogout = () => {
     dispatch(logout());
@@ -16,7 +13,6 @@ const Navbar = () => {
     localStorage.removeItem("userId");
     window.location.href = "/login";
   };
-
 
   return (
     <nav className="bg-gray-800 p-4 shadow-md">
